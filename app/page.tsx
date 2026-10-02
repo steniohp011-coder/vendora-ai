@@ -4,7 +4,42 @@ import { useState } from 'react';
 type Output = { title: string; description: string; benefits: string[]; instagram: string; tiktok: string; keywords: string[] };
 export default function Home() {
  const [product,setProduct]=useState(''); const [category,setCategory]=useState(''); const [audience,setAudience]=useState(''); const [features,setFeatures]=useState(''); const [platform,setPlatform]=useState('Shopee'); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [result,setResult]=useState<Output|null>(null);
- async function generate(){setBusy(true);setError('');setResult(null);try{const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product,category,audience,features,platform})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Não foi possível gerar o conteúdo.');setResult(data.result);}catch(e){setError(e instanceof Error?e.message:'Erro inesperado.');}finally{setBusy(false)}}
+ async function generate(){
+  setBusy(true);
+  setError('');
+  setResult(null);
+
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  const produtoFinal = product.trim() || 'Produto';
+  const categoriaFinal = category.trim() || 'produto';
+  const publicoFinal = audience.trim() || 'clientes';
+
+  setResult({
+    title: `${produtoFinal} que você vai querer experimentar!`,
+    description: `Conheça nosso ${produtoFinal}, preparado para ${publicoFinal}. Uma opção especial de ${categoriaFinal}, feita para deixar sua experiência ainda melhor.`,
+    benefits: [
+      'Qualidade e praticidade',
+      'Ótima opção para o dia a dia',
+      'Produto pensado para você'
+    ],
+    instagram: `✨ Conheça o ${produtoFinal}!
+
+Uma opção especial para quem procura qualidade e praticidade. 💜
+
+Gostou? Chame a gente e saiba mais!`,
+    tiktok: `POV: você encontrou o ${produtoFinal} que estava procurando 👀✨`,
+    keywords: [
+      produtoFinal,
+      categoriaFinal,
+      'oferta',
+      'qualidade',
+      'comprar'
+    ]
+  });
+
+  setBusy(false);
+}
  return <main><nav className="nav"><a className="brand" href="#"><span className="mark">V</span> vendora<span className="ai">AI</span></a><a className="navlink" href="#como-funciona">Como funciona</a><a className="navbutton" href="#criar">Experimentar grátis ↗</a></nav>
  <section className="hero"><div className="eyebrow"><span className="dot"/> SUA NOVA ASSISTENTE DE E-COMMERCE</div><h1>Transforme produtos em<br/><span>conteúdo que vende.</span></h1><p className="intro">Crie descrições, anúncios e ideias para redes sociais em poucos segundos. Menos tempo escrevendo, mais tempo cuidando da sua loja.</p><a className="primary" href="#criar">Criar meu primeiro anúncio <span>→</span></a><div className="trust">✦ Feita para quem vende online&nbsp; · &nbsp;Conteúdo em vários formatos</div></section>
  <section className="workspace" id="criar"><div className="formhead"><div><div className="eyebrow">✦ GERADOR INTELIGENTE</div><h2>Vamos apresentar seu produto?</h2><p>Preencha os campos e deixe a Vendora preparar o conteúdo.</p></div><div className="spark">✳</div></div><div className="fields"><label>Nome do produto<input value={product} onChange={e=>setProduct(e.target.value)} placeholder="Ex.: Óleo corporal de baunilha"/></label><div className="twocol"><label>Categoria<input value={category} onChange={e=>setCategory(e.target.value)} placeholder="Ex.: Beleza"/></label><label>Público-alvo<input value={audience} onChange={e=>setAudience(e.target.value)} placeholder="Ex.: Pessoas que gostam de autocuidado"/></label></div><label>Características e informações<textarea value={features} onChange={e=>setFeatures(e.target.value)} placeholder="Tamanho, material, diferenciais, preço... Não inclua alegações que não possa comprovar." rows={4}/></label><label>Onde pretende anunciar?<select value={platform} onChange={e=>setPlatform(e.target.value)}>{['Shopee','Instagram','TikTok','Mercado Livre','Amazon','Loja virtual','Vários canais'].map(x=><option key={x}>{x}</option>)}</select></label><button className="generate" onClick={generate} disabled={busy||!product.trim() }>{busy?'Criando conteúdo...':'✦  Gerar conteúdo'}</button>{error&&<p className="error">{error}</p>}<p className="fineprint">Revise as informações geradas antes de publicar. A IA pode cometer erros.</p></div>
